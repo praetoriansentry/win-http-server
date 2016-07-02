@@ -1,0 +1,2 @@
+This is a very very basic static file server for windows written in
+go. Still very much a work in progress.
