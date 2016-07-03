@@ -32,6 +32,8 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 	go func() {
 		elog.Info(1, "Starting http server v2")
 		dir := os.Getenv("GO_HTTP_ROOT")
+		key := os.Getenv("GO_HTTP_TLS_KEY")
+		cert := os.Getenv("GO_HTTP_TLS_CERT")
 
 		// Maybe make this configurable
 		file := dir + string(os.PathSeparator) + "access.log"
@@ -52,8 +54,11 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 			fileHandler.ServeHTTP(w, r)
 		})
 
+		go func() {
+			err := http.ListenAndServeTLS(":443", cert, key, nil)
+			elog.Info(1, err.Error())
+		}()
 		e := http.ListenAndServe(":80", nil)
-
 		elog.Info(1, e.Error())
 	}()
 
