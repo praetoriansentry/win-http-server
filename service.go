@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"encoding/json"
 	"net/http"
 
 	"golang.org/x/sys/windows/svc"
@@ -50,7 +51,8 @@ func (m *myservice) Execute(args []string, r <-chan svc.ChangeRequest, changes c
 
 		fileHandler := http.FileServer(http.Dir(dir))
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			f.WriteString(fmt.Sprintf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL))
+			data, _ := json.Marshal(r)
+			f.WriteString(fmt.Sprintf("Request Time %s\n%s\n\n", time.Now().Format(time.RFC3339), string(data)))
 			fileHandler.ServeHTTP(w, r)
 		})
 
